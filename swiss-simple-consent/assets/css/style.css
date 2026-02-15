@@ -1,110 +1,271 @@
-#swiss-consent-banner {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #fff;
-    padding: 20px;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    z-index: 99999;
-    display: none; /* Hidden by default, shown by JS */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+:root {
+    --swiss-consent-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --swiss-consent-bg: rgba(255, 255, 255, 0.85);
+    --swiss-consent-border: rgba(255, 255, 255, 0.4);
+    --swiss-consent-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    --swiss-consent-text: #1d1d1f;
+    --swiss-consent-text-secondary: #86868b;
+    --swiss-consent-primary: #0071e3;
+    --swiss-consent-primary-hover: #0077ed;
+    --swiss-consent-secondary-bg: rgba(0, 0, 0, 0.05);
+    --swiss-consent-secondary-hover: rgba(0, 0, 0, 0.1);
+    --swiss-consent-radius: 12px;
 }
 
-#swiss-consent-banner .swiss-consent-container {
-    max-width: 1200px;
-    margin: 0 auto;
+#swiss-consent-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    width: 90%;
+    max-width: 600px;
+    z-index: 999999;
+    font-family: var(--swiss-consent-font);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+#swiss-consent-banner.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+.swiss-consent-glass {
+    background: var(--swiss-consent-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--swiss-consent-border);
+    border-radius: var(--swiss-consent-radius);
+    box-shadow: var(--swiss-consent-shadow);
+    overflow: hidden;
+}
+
+.swiss-consent-content-wrapper {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.swiss-consent-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.swiss-consent-logo {
+    max-height: 40px;
+    width: auto;
+}
+
+.swiss-consent-title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--swiss-consent-text);
+}
+
+.swiss-consent-body p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--swiss-consent-text);
+}
+
+.swiss-consent-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 16px;
+    margin-top: 8px;
 }
 
-#swiss-consent-banner p {
-    margin: 0;
-    color: #333;
-    font-size: 14px;
-    line-height: 1.5;
-}
-
-#swiss-consent-banner .swiss-consent-actions {
+.swiss-consent-links {
     display: flex;
-    gap: 10px;
+    gap: 12px;
+}
+
+.swiss-consent-link {
+    font-size: 11px;
+    color: var(--swiss-consent-text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.swiss-consent-link:hover {
+    color: var(--swiss-consent-text);
+    text-decoration: underline;
+}
+
+.swiss-consent-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .swiss-consent-btn {
+    border: none;
     padding: 8px 16px;
-    border: 1px solid #ccc;
-    background-color: #f0f0f1;
-    color: #333;
+    border-radius: 999px; /* Pill shape */
+    font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
-    border-radius: 4px;
-    font-size: 13px;
+    transition: all 0.2s;
     text-decoration: none;
-    transition: background-color 0.2s;
-}
-
-.swiss-consent-btn:hover {
-    background-color: #e0e0e0;
+    outline: none;
 }
 
 .swiss-consent-btn-primary {
-    background-color: #0073aa;
+    background-color: var(--swiss-consent-primary);
     color: #fff;
-    border-color: #0073aa;
 }
 
 .swiss-consent-btn-primary:hover {
-    background-color: #006799;
+    background-color: var(--swiss-consent-primary-hover);
+}
+
+.swiss-consent-btn-secondary {
+    background-color: var(--swiss-consent-secondary-bg);
+    color: var(--swiss-consent-text);
+}
+
+.swiss-consent-btn-secondary:hover {
+    background-color: var(--swiss-consent-secondary-hover);
 }
 
 /* Modal Styling */
 #swiss-consent-modal {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 100000;
+    z-index: 1000000;
+    display: flex;
     justify-content: center;
     align-items: center;
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 #swiss-consent-modal.active {
-    display: flex;
+    opacity: 1;
+    visibility: visible;
 }
 
-#swiss-consent-modal .swiss-consent-modal-content {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 5px;
+.swiss-consent-modal-content {
     width: 90%;
     max-width: 500px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    padding: 30px;
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-#swiss-consent-modal h3 {
-    margin-top: 0;
+#swiss-consent-modal.active .swiss-consent-modal-content {
+    transform: scale(1);
+}
+
+.swiss-consent-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
 }
 
-.swiss-consent-option {
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
+.swiss-consent-modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--swiss-consent-text);
 }
 
-.swiss-consent-option input {
-    margin-right: 10px;
+.swiss-consent-close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--swiss-consent-text-secondary);
+}
+
+.swiss-consent-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.swiss-consent-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+}
+
+.swiss-consent-option-label {
+    display: flex;
+    flex-direction: column;
+}
+
+.swiss-consent-option-label label {
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--swiss-consent-text);
+    margin-bottom: 2px;
+}
+
+.swiss-consent-option-desc {
+    font-size: 11px;
+    color: var(--swiss-consent-text-secondary);
+}
+
+.swiss-consent-option input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
 }
 
 .swiss-consent-modal-actions {
-    margin-top: 25px;
-    text-align: right;
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+}
+
+@media (max-width: 600px) {
+    #swiss-consent-banner {
+        width: 100%;
+        bottom: 0;
+        border-radius: 12px 12px 0 0;
+        max-width: none;
+        transform: translateY(100%);
+    }
+
+    .swiss-consent-glass {
+        border-radius: 12px 12px 0 0;
+        border-bottom: none;
+    }
+
+    .swiss-consent-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .swiss-consent-links {
+        justify-content: center;
+    }
+
+    .swiss-consent-actions {
+        flex-direction: column;
+    }
+
+    .swiss-consent-btn {
+        width: 100%;
+        text-align: center;
+    }
 }

@@ -44,19 +44,42 @@ class Swiss_Simple_Consent_Frontend {
 		$banner_bg = isset( $options['banner_bg_color'] ) ? $options['banner_bg_color'] : '#ffffff';
 		$btn_color = isset( $options['button_color'] ) ? $options['button_color'] : '#0073aa';
 
+		// Convert hex to rgba for glass effect if possible, or just append opacity hex
+		// Simple approach: append 'D9' (approx 85%) if it's a 6-digit hex
+		$bg_color_val = $banner_bg;
+		if ( preg_match( '/^#[a-f0-9]{6}$/i', $banner_bg ) ) {
+			$bg_color_val .= 'D9';
+		}
+
 		$custom_css = "
-			#swiss-consent-banner { background-color: {$banner_bg}; }
-			#swiss-consent-banner .swiss-consent-btn-primary { background-color: {$btn_color}; border-color: {$btn_color}; }
+			:root {
+				--swiss-consent-bg: {$bg_color_val};
+				--swiss-consent-primary: {$btn_color};
+				--swiss-consent-primary-hover: {$btn_color};
+			}
 		";
 		wp_add_inline_style( $this->plugin_name, $custom_css );
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . '../assets/js/consent.js', array(), $this->version, true );
 
+		$logo_url = isset( $options['logo_url'] ) ? $options['logo_url'] : '';
+		$banner_headline = isset( $options['banner_headline'] ) ? $options['banner_headline'] : '';
+		$banner_text = isset( $options['banner_text'] ) && ! empty( $options['banner_text'] )
+			? $options['banner_text']
+			: __( 'We use cookies to improve your experience. Some are essential, others help us improve.', 'swiss-simple-consent' );
+
+		$privacy_policy_url = isset( $options['privacy_policy_url'] ) ? $options['privacy_policy_url'] : '';
+		$impressum_url = isset( $options['impressum_url'] ) ? $options['impressum_url'] : '';
+
 		wp_localize_script( $this->plugin_name, 'swiss_consent_obj', array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce'    => wp_create_nonce( 'swiss_consent_nonce' ),
+			'logo_url' => $logo_url,
+			'banner_headline' => $banner_headline,
+			'privacy_policy_url' => $privacy_policy_url,
+			'impressum_url' => $impressum_url,
 			'texts'    => array(
-				'banner_text' => __( 'We use cookies to improve your experience. Some are essential, others help us improve.', 'swiss-simple-consent' ),
+				'banner_text' => $banner_text,
 				'accept_all'  => __( 'Accept All', 'swiss-simple-consent' ),
 				'reject_all'  => __( 'Reject All', 'swiss-simple-consent' ),
 				'settings'    => __( 'Settings', 'swiss-simple-consent' ),
@@ -64,6 +87,8 @@ class Swiss_Simple_Consent_Frontend {
 				'marketing'   => __( 'Marketing', 'swiss-simple-consent' ),
 				'statistics'  => __( 'Statistics', 'swiss-simple-consent' ),
 				'essential'   => __( 'Essential', 'swiss-simple-consent' ),
+				'privacy_policy' => __( 'Privacy Policy', 'swiss-simple-consent' ),
+				'impressum' => __( 'Legal Notice', 'swiss-simple-consent' ),
 			)
 		) );
 	}
