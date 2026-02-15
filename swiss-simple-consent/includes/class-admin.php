@@ -105,6 +105,54 @@ class Swiss_Simple_Consent_Admin {
 			$this->plugin_name,
 			'swiss_simple_consent_styling'
 		);
+
+		// Section: Content & Links
+		add_settings_section(
+			'swiss_simple_consent_content',
+			'Content & Links',
+			null,
+			$this->plugin_name
+		);
+
+		add_settings_field(
+			'logo_url',
+			'Logo URL',
+			array( $this, 'field_logo_url_cb' ),
+			$this->plugin_name,
+			'swiss_simple_consent_content'
+		);
+
+		add_settings_field(
+			'banner_headline',
+			'Banner Headline',
+			array( $this, 'field_banner_headline_cb' ),
+			$this->plugin_name,
+			'swiss_simple_consent_content'
+		);
+
+		add_settings_field(
+			'banner_text',
+			'Banner Text',
+			array( $this, 'field_banner_text_cb' ),
+			$this->plugin_name,
+			'swiss_simple_consent_content'
+		);
+
+		add_settings_field(
+			'privacy_policy_url',
+			'Privacy Policy URL',
+			array( $this, 'field_privacy_policy_url_cb' ),
+			$this->plugin_name,
+			'swiss_simple_consent_content'
+		);
+
+		add_settings_field(
+			'impressum_url',
+			'Impressum/Legal Notice URL',
+			array( $this, 'field_impressum_url_cb' ),
+			$this->plugin_name,
+			'swiss_simple_consent_content'
+		);
 	}
 
 	/**
@@ -135,6 +183,26 @@ class Swiss_Simple_Consent_Admin {
 
 		if ( isset( $input['button_color'] ) ) {
 			$new_input['button_color'] = sanitize_hex_color( $input['button_color'] );
+		}
+
+		if ( isset( $input['logo_url'] ) ) {
+			$new_input['logo_url'] = esc_url_raw( $input['logo_url'] );
+		}
+
+		if ( isset( $input['banner_headline'] ) ) {
+			$new_input['banner_headline'] = sanitize_text_field( $input['banner_headline'] );
+		}
+
+		if ( isset( $input['banner_text'] ) ) {
+			$new_input['banner_text'] = sanitize_textarea_field( $input['banner_text'] );
+		}
+
+		if ( isset( $input['privacy_policy_url'] ) ) {
+			$new_input['privacy_policy_url'] = esc_url_raw( $input['privacy_policy_url'] );
+		}
+
+		if ( isset( $input['impressum_url'] ) ) {
+			$new_input['impressum_url'] = esc_url_raw( $input['impressum_url'] );
 		}
 
 		return $new_input;
@@ -185,6 +253,49 @@ class Swiss_Simple_Consent_Admin {
 		<?php
 	}
 
+	public function field_logo_url_cb() {
+		$options = get_option( $this->plugin_name . '_options' );
+		$val = isset( $options['logo_url'] ) ? $options['logo_url'] : '';
+		?>
+		<input type="url" name="<?php echo $this->plugin_name; ?>_options[logo_url]" value="<?php echo esc_attr( $val ); ?>" class="regular-text" />
+		<p class="description">Enter the URL of your site logo.</p>
+		<?php
+	}
+
+	public function field_banner_headline_cb() {
+		$options = get_option( $this->plugin_name . '_options' );
+		$val = isset( $options['banner_headline'] ) ? $options['banner_headline'] : '';
+		?>
+		<input type="text" name="<?php echo $this->plugin_name; ?>_options[banner_headline]" value="<?php echo esc_attr( $val ); ?>" class="regular-text" />
+		<p class="description">Optional headline for the banner.</p>
+		<?php
+	}
+
+	public function field_banner_text_cb() {
+		$options = get_option( $this->plugin_name . '_options' );
+		$val = isset( $options['banner_text'] ) ? $options['banner_text'] : '';
+		?>
+		<textarea name="<?php echo $this->plugin_name; ?>_options[banner_text]" rows="3" cols="50" class="large-text"><?php echo esc_textarea( $val ); ?></textarea>
+		<p class="description">Override the default banner text.</p>
+		<?php
+	}
+
+	public function field_privacy_policy_url_cb() {
+		$options = get_option( $this->plugin_name . '_options' );
+		$val = isset( $options['privacy_policy_url'] ) ? $options['privacy_policy_url'] : '';
+		?>
+		<input type="url" name="<?php echo $this->plugin_name; ?>_options[privacy_policy_url]" value="<?php echo esc_attr( $val ); ?>" class="regular-text" />
+		<?php
+	}
+
+	public function field_impressum_url_cb() {
+		$options = get_option( $this->plugin_name . '_options' );
+		$val = isset( $options['impressum_url'] ) ? $options['impressum_url'] : '';
+		?>
+		<input type="url" name="<?php echo $this->plugin_name; ?>_options[impressum_url]" value="<?php echo esc_attr( $val ); ?>" class="regular-text" />
+		<?php
+	}
+
 
 	/**
 	 * Display the settings page.
@@ -206,6 +317,7 @@ class Swiss_Simple_Consent_Admin {
 
 			<h2 class="nav-tab-wrapper">
 				<a href="?page=<?php echo $this->plugin_name; ?>&tab=general" class="nav-tab <?php echo $active_tab == 'general' ? 'nav-tab-active' : ''; ?>">General</a>
+				<a href="?page=<?php echo $this->plugin_name; ?>&tab=content" class="nav-tab <?php echo $active_tab == 'content' ? 'nav-tab-active' : ''; ?>">Content & Links</a>
 				<a href="?page=<?php echo $this->plugin_name; ?>&tab=scripts" class="nav-tab <?php echo $active_tab == 'scripts' ? 'nav-tab-active' : ''; ?>">Scripts</a>
 				<a href="?page=<?php echo $this->plugin_name; ?>&tab=styling" class="nav-tab <?php echo $active_tab == 'styling' ? 'nav-tab-active' : ''; ?>">Styling</a>
 			</h2>
@@ -220,6 +332,8 @@ class Swiss_Simple_Consent_Admin {
 				<?php
 					if ( $active_tab == 'general' ) {
 						do_settings_fields( $this->plugin_name, 'swiss_simple_consent_general' );
+					} elseif ( $active_tab == 'content' ) {
+						do_settings_fields( $this->plugin_name, 'swiss_simple_consent_content' );
 					} elseif ( $active_tab == 'scripts' ) {
 						do_settings_fields( $this->plugin_name, 'swiss_simple_consent_scripts' );
 					} elseif ( $active_tab == 'styling' ) {
